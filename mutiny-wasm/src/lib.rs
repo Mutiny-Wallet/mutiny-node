@@ -2050,6 +2050,11 @@ impl MutinyWallet {
         Ok(self.inner.check_lnurl_name().await?)
     }
 
+    /// Resyncs the hermes client by subscribing to older DMs.
+    pub async fn resync_lightning_address(&self) -> Result<(), MutinyJsError> {
+        Ok(self.inner.resync_hermes().await?)
+    }
+
     /// Resets the scorer and network graph. This can be useful if you get stuck in a bad state.
     #[wasm_bindgen]
     pub async fn reset_router(&self) -> Result<(), MutinyJsError> {

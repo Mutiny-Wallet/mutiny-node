@@ -31,7 +31,7 @@ use crate::event::{HTLCStatus, MillisatAmount, PaymentInfo};
 use crate::federation::FedimintClient;
 use crate::labels::LabelStorage;
 use crate::nostr::RELAYS;
-use crate::storage::persist_payment_info;
+use crate::storage::{persist_payment_info, LAST_HERMES_SYNC_TIME_KEY};
 use crate::{
     blindauth::{BlindAuthClient, SignedToken},
     error::MutinyError,
@@ -380,6 +380,26 @@ impl<S: MutinyStorage> HermesClient<S> {
                 }
             }
         });
+
+        Ok(())
+    }
+
+    /// Resyncs the hermes client by subscribing to older DMs.
+    pub async fn resync(&self) -> Result<(), MutinyError> {
+        // reset last sync time to zero
+        self.storage
+            .set_data(LAST_HERMES_SYNC_TIME_KEY.to_string(), 0, None)?;
+
+        let received_dm_filter = Filter::new()
+            .kind(Kind::EncryptedDirectMessage)
+            .pubkey(self.public_key)
+            .since(Timestamp::from(0));
+
+        // subscribe to older DMs to resync
+        self.client.connect().await;
+        self.client.subscribe(vec![received_dm_filter], None).await;
+
+        // the rest should happen in the background thread that handles the events
 
         Ok(())
     }

@@ -3570,6 +3570,14 @@ impl<S: MutinyStorage> MutinyWallet<S> {
         Ok(())
     }
 
+    /// Starts up the hermes client if available
+    pub async fn resync_hermes(&self) -> Result<(), MutinyError> {
+        if let Some(hermes_client) = self.hermes_client.as_ref() {
+            hermes_client.resync().await?;
+        }
+        Ok(())
+    }
+
     /// Checks available blind tokens
     /// Only needs to be ran once successfully on startup
     pub fn check_blind_tokens(&self) {
