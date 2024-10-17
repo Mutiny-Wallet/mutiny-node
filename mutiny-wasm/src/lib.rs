@@ -1724,6 +1724,12 @@ impl MutinyWallet {
         Ok(self.inner.nostr.delete_nwc_profile(profile_index)?)
     }
 
+    /// Re-enables a disabled nwc profile
+    pub async fn enable_nwc_profile(&self, index: u32) -> Result<(), MutinyJsError> {
+        self.inner.nostr.enable_nwc_profile(index)?;
+        Ok(())
+    }
+
     /// Set budget for a NWC Profile
     #[wasm_bindgen]
     pub async fn set_nwc_profile_budget(

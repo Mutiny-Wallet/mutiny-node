@@ -2518,7 +2518,9 @@ impl<S: MutinyStorage> MutinyWallet<S> {
             self.ensure_mutiny_nwc_profile(subscription_client, autopay)
                 .await?;
 
-            // FIXME: switch the subscription from disabled to enabled if it was disabled
+            // make sure the NWC profile is enabled
+            self.nostr
+                .enable_nwc_profile(ReservedProfile::MutinySubscription.info().1)?;
 
             self.check_blind_tokens();
 

@@ -1753,6 +1753,29 @@ impl<S: MutinyStorage, P: PrimalApi, C: NostrClient> NostrManager<S, P, C> {
         }
     }
 
+    /// Re-enables a disabled nwc profile
+    pub fn enable_nwc_profile(&self, index: u32) -> Result<(), MutinyError> {
+        log_info!(self.logger, "Enabling nwc profile: {index}");
+
+        let mut vec = self.nwc.write().unwrap();
+
+        let profile_opt = vec.iter_mut().find(|p| p.profile.index == index);
+
+        match profile_opt {
+            Some(p) => {
+                p.profile.enabled = Some(true);
+
+                let profiles = vec.iter().map(|x| x.profile.clone()).collect::<Vec<_>>();
+
+                self.storage
+                    .set_data(NWC_STORAGE_KEY.to_string(), profiles, None)?;
+
+                Ok(())
+            }
+            None => Err(MutinyError::NotFound),
+        }
+    }
+
     pub async fn claim_single_use_nwc(
         &self,
         amount_sats: u64,
